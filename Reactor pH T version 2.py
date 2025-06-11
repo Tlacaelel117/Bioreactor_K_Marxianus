@@ -8,7 +8,7 @@ from datetime import datetime
 
 # --- Configuración del puerto serial ---
 try:
-    ser = serial.Serial("COM5", 9600, timeout=1)
+    ser = serial.Serial("/dev/ttyACM0", 9600, timeout=1)
     ser.flushInput()
 except Exception as e:
     print("Error: No se pudo abrir el puerto serial. Verifica la conexión.")
@@ -102,7 +102,7 @@ finally:
     ser.close()
 
 # --- Guardar los datos y la gráfica ---
-save_folder = r"D:\MAESTRIA\Angel Tlacaelel Ortiz Manzano\Proyecto\Python codigos"
+save_folder = r"/home/raspberrypi/Desktop/Maestria"
 if not os.path.exists(save_folder):
     os.makedirs(save_folder)
 fecha_actual = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
