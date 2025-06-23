@@ -8,7 +8,7 @@ from datetime import datetime
 
 # --- Configuración del puerto serial ---
 try:
-    ser = serial.Serial("/dev/ttyACM0", 9600, timeout=1)
+    ser = serial.Serial("/dev/ttyACM0", 115200, timeout=1)
     ser.flushInput()
 except Exception as e:
     print("Error: No se pudo abrir el puerto serial. Verifica la conexión.")
@@ -81,7 +81,7 @@ try:
                 buffer_ph.append(ph_val)
                 buffer_o2.append(o2_val)
 
-        # ¿Es hora de promediar?
+        # Verificar si el intervalo de promedio se ha cumplido
         if current_time - last_avg_time >= avg_interval:
             if buffer_temp:
                 avg_temp = sum(buffer_temp) / len(buffer_temp)
@@ -96,7 +96,7 @@ try:
                 o2Data_avg.append(avg_o2)
                 timestamps_avg.append(timestamp)
 
-                # Actualizar graficas
+                # Actualizar graficas con datos promediado 
                 line_temp.set_data(timeData_avg, tempData_avg)
                 ax1.relim(); ax1.autoscale_view()
                 line_ph.set_data(timeData_avg, phData_avg)
