@@ -18,6 +18,7 @@
 //Punto de calibracion frio
 #define CAL2_V (766) //mv
 #define CAL2_T (16.44)   //℃
+const float PRESSURE_CORRECTION = 0.771f;
 const uint16_t DO_Table[41] = {
     14460, 14220, 13820, 13440, 13090, 12740, 12420, 12110, 11810, 11530,
     11260, 11010, 10770, 10530, 10300, 10080, 9860, 9660, 9460, 9270,
@@ -119,6 +120,8 @@ void loop() {
   ADC_Raw_DO  = analogRead(DO_PIN);
   ADC_Volt_DO = uint32_t(VREF) * ADC_Raw_DO / ADC_RES;
   DO_value    = readDO(ADC_Volt_DO, Temperaturet);
+  DO_value = DO_value * PRESSURE_CORRECTION;
+
   
     // ——— Mostrar resultados ———
   Serial.print("Temp: ");
@@ -151,3 +154,4 @@ void loop() {
   }
   // Evitar un delay fijo al final del loop para permitir mayor reactividad
 }
+
