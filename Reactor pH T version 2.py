@@ -8,7 +8,7 @@ from datetime import datetime
 
 # --- Configuración del puerto serial ---
 try:
-    ser = serial.Serial("/dev/ttyACM0", 9600, timeout=1)
+    ser = serial.Serial("/dev/ttyACM0", 115200, timeout=1)
     ser.flushInput()
 except Exception as e:
     print("Error: No se pudo abrir el puerto serial. Verifica la conexión.")
@@ -102,7 +102,7 @@ finally:
     ser.close()
 
 # --- Guardar los datos y la gráfica ---
-save_folder = r"/home/raspberrypi/Desktop/Maestria"
+save_folder = r"/home/pi/Desktop/Maestria"
 if not os.path.exists(save_folder):
     os.makedirs(save_folder)
 fecha_actual = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -122,3 +122,4 @@ graph_filename = f"grafica_sensor_promedio_{fecha_actual}.png"
 graph_path = os.path.join(save_folder, graph_filename)
 fig.savefig(graph_path)
 print(f"Gráficas guardadas en '{graph_path}'.")
+
