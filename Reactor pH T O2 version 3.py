@@ -62,7 +62,7 @@ ax3.grid(True)
 pattern = re.compile(
     r"Temp:\s*([-+]?\d*\.?\d+),\s*"
     r"pH:\s*([-+]?\d*\.?\d+),\s*"
-    r"O2\|1:\s*([-+]?\d*\.?\d+),\s"
+    r"O2\|1:\s*([-+]?\d*\.?\d+),\s*"
     r"O2\|2:\s*([-+]?\d*\.?\d+)"
 )
 
@@ -73,20 +73,19 @@ try:
         current_time = time.time()
         if ser.in_waiting > 0:
             try:
-                data_line = ser.readline().decode('utf-8').strip()
+                data_line = ser.readline().decode('utf-8', errors='ignore').strip()
             except UnicodeDecodeError:
                 continue
 
             match = pattern.search(data_line)
             if not match:
                 continue
-            try
+            
                 temp_val = float(match.group(1))
                 ph_val   = float(match.group(2))
                 o2_1_val   = float(match.group(3))
                 o2_2_val   = float(match.group(4))
-                except ValueError:
-                    continue
+                
             
                 buffer_temp.append(temp_val)
                 buffer_ph.append(ph_val)
@@ -151,8 +150,8 @@ df = pd.DataFrame({
     "Tiempo_s":     timeData_avg,
     "Temperatura_C": tempData_avg,
     "pH":           phData_avg,
-    "O2_1_ug_/_L":  o2_1Data_avg
-    "O2_2_ug_/_L":  o2_2Data_avg
+    "O2_1_ug_L":  o2_1Data_avg,
+    "O2_2_ug_L":  o2_2Data_avg
 })
 df.to_csv(csv_path, index=False)
 print(f"Datos guardados en '{csv_path}'.")
@@ -161,4 +160,5 @@ print(f"Datos guardados en '{csv_path}'.")
 graph_path = os.path.join(save_folder, f"grafica_sensor_promedio_{fecha_actual}.png")
 fig.savefig(graph_path)
 print(f"Gráficas guardadas en '{graph_path}'.")
+
 
