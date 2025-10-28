@@ -9,11 +9,15 @@ from datetime import datetime
 # --- Configuración del puerto serial ---
 try:
     ser = serial.Serial("/dev/ttyACM0", 115200, timeout=1)
-    time.sleep(2)  
+    time.sleep(2)
     ser.flushInput()
 except Exception as e:
     print("Error: No se pudo abrir el puerto serial. Verifica la conexión.")
     raise e
+
+# --- Parámetros de prueba/depuración ---
+DEBUG = True           # True imprimirá líneas recibidas
+avg_interval = 60      # segundos (usa 600 en corrida real, usa 60 para probar rápido)
 
 # --- Inicialización de variables ---
 timeData_avg = []
@@ -30,35 +34,37 @@ buffer_o2_2 = []
 
 start_time    = time.time()
 last_avg_time = start_time
-avg_interval  = 600  # segundos
 
 # --- Configuración de la gráfica ---
 plt.ion()
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(8, 9))
 
 # Temperatura
-line_temp, = ax1.plot([], [], 'r.-', linewidth=1.5)
+line_temp, = ax1.plot([], [], 'r.-', linewidth=1.5, label='T')
 ax1.set_title("Temperatura (Promedio)")
 ax1.set_xlabel("Tiempo (s)")
 ax1.set_ylabel("°C")
 ax1.grid(True)
+ax1.legend()
 
 # pH
-line_ph, = ax2.plot([], [], 'b.-', linewidth=1.5)
+line_ph, = ax2.plot([], [], 'b.-', linewidth=1.5, label='pH')
 ax2.set_title("pH (Promedio)")
 ax2.set_xlabel("Tiempo (s)")
 ax2.set_ylabel("pH")
 ax2.grid(True)
+ax2.legend()
 
-# O₂
-line_o2_1, = ax3.plot([], [], 'g.-', label='O₂|1', linewidth=1.5)
-line_o2_2, = ax3.plot([], [], 'm.-', label='O₂|2', linewidth=1.5)
+# O₂ (ambos en la misma gráfica)
+line_o2_1, = ax3.plot([], [], 'g.-', linewidth=1.5, label='O₂|1')
+line_o2_2, = ax3.plot([], [], 'm.-', linewidth=1.5, label='O₂|2')
 ax3.set_title("O₂ Disuelto (Promedio)")
 ax3.set_xlabel("Tiempo (s)")
 ax3.set_ylabel("µg/L")
 ax3.grid(True)
+ax3.legend()
 
-# Expresión regular para extraer Temp, pH y O2
+# Expresión regular para extraer Temp, pH, O2|1, O2|2
 pattern = re.compile(
     r"Temp:\s*([-+]?\d*\.?\d+),\s*"
     r"pH:\s*([-+]?\d*\.?\d+),\s*"
@@ -78,28 +84,25 @@ try:
                 continue
 
             match = pattern.search(data_line)
-            if not match:
-                continue
-            
+            if match:
                 temp_val = float(match.group(1))
                 ph_val   = float(match.group(2))
-                o2_1_val   = float(match.group(3))
-                o2_2_val   = float(match.group(4))
-                
-            
+                o2_1_val = float(match.group(3))
+                o2_2_val = float(match.group(4))
+
+                # ---- CORRECCIÓN: agregar O2_2 correctamente ----
                 buffer_temp.append(temp_val)
                 buffer_ph.append(ph_val)
                 buffer_o2_1.append(o2_1_val)
-                buffer_o2_2.append(o2_2_val)
+                buffer_o2_2.append(o2_2_val)     
 
         # Verificar si el intervalo de promedio se ha cumplido
         if current_time - last_avg_time >= avg_interval:
             if buffer_temp:
                 avg_temp = sum(buffer_temp) / len(buffer_temp)
                 avg_ph   = sum(buffer_ph)   / len(buffer_ph)
-                avg_o2_1 = sum(buffer_o2_1)   / len(buffer_o2_1)
+                avg_o2_1 = sum(buffer_o2_1) / len(buffer_o2_1)
                 avg_o2_2 = sum(buffer_o2_2) / len(buffer_o2_2)
-                
                 elapsed  = current_time - start_time
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -107,7 +110,8 @@ try:
                 tempData_avg.append(avg_temp)
                 phData_avg.append(avg_ph)
                 o2_1Data_avg.append(avg_o2_1)
-                o2_2Data_avg.append(avg_o2_2)
+                o2_2Data_avg.append(avg_o2_2)     
+
                 timestamps_avg.append(timestamp)
 
                 # Actualizar graficas con datos promediado 
@@ -122,13 +126,13 @@ try:
                 ax3.relim(); ax3.autoscale_view()
 
                 plt.draw()
-                plt.pause(0.01)
+                plt.pause(0.1)
 
                 # Reset buffers
                 buffer_temp = []
                 buffer_ph   = []
-                buffer_o2_1 = []
-                buffer_o2_2 = []
+                buffer_o2_1   = []
+                buffer_o2_2   = []
                 last_avg_time = current_time
 
         time.sleep(0.05)
@@ -160,5 +164,6 @@ print(f"Datos guardados en '{csv_path}'.")
 graph_path = os.path.join(save_folder, f"grafica_sensor_promedio_{fecha_actual}.png")
 fig.savefig(graph_path)
 print(f"Gráficas guardadas en '{graph_path}'.")
+
 
 
