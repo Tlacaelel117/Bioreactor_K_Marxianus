@@ -1,7 +1,7 @@
 // ————————————————————————————————————————————————————————————————
 //        SISTEMA MULTISENSOR PARA BIOREACTOR 3D
 //        (Temperatura, pH, Oxígeno Disuelto x2)
-//        Compatible con Python Logger en Raspberry Pi
+//        Compatible con Python en Raspberry Pi
 // ————————————————————————————————————————————————————————————————
 
 #include <Arduino.h>
@@ -16,7 +16,7 @@
 #define DO_PIN2       A2     // Sensor DO2
 #define ONE_WIRE_BUS  3      // DS18B20 Temperatura (pin digital)
 
-// ——— CONFIGURACIÓN LCD (opcional) ———
+// ——— CONFIGURACIÓN LCD ———
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // ——— SENSOR DE TEMPERATURA ———
@@ -24,32 +24,32 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature tempSensor(&oneWire);
 
 // ——— CONSTANTES GENERALES ———
-#define VREF 5000
+#define VREF 5000 // mV
 #define ADC_RES 1024
 const float PRESSURE_CORRECTION = 0.771f;
 
 // ——— CALIBRACIÓN DO SENSOR 1 ———
-#define CAL1_V1 1220.0
+#define CAL1_V1 1220.0 // mV
 #define CAL1_T1 40.0
-#define CAL2_V1 766.0
+#define CAL2_V1 766.0 // mV
 #define CAL2_T1 16.4
 
 // ——— CALIBRACIÓN DO SENSOR 2 ———
-#define CAL1_V2 1205.0
-#define CAL1_T2 40.5
-#define CAL2_V2 780.0
-#define CAL2_T2 17.0
+#define CAL1_V2 1347.0f  // mV
+#define CAL1_T2 39.15f
+#define CAL2_V2 619.5f   // mV
+#define CAL2_T2 19.57f
 
 // ——— TABLA DE SATURACIÓN DE O₂ ———
 const uint16_t DO_Table[41] = {
-  14460,14220,13820,13440,13090,12740,12420,12110,11810,11530,
-  11260,11010,10770,10530,10300,10080,9860,9660,9460,9270,
-  9080,8900,8730,8570,8410,8250,8110,7960,7820,7690,
-  7560,7430,7300,7180,7070,6950,6840,6730,6630,6530,6410
+  14460, 14220, 13820, 13440, 13090, 12740, 12420, 12110, 11810, 11530,
+  11260, 11010, 10770, 10530, 10300, 10080, 9860, 9660, 9460, 9270,
+  9080, 8900, 8730, 8570, 8410, 8250, 8110, 7960, 7820, 7690,
+  7560, 7430, 7300, 7180, 7070, 6950, 6840, 6730, 6630, 6530, 6410
 };
 
 // ——— CALIBRACIÓN PH ———
-float calibration_value = 22.14 + 0.81;
+float calibration_value = 22.14 + 0.81; // ajuste empírico
 
 // ——— FUNCIONES DE CÁLCULO ———
 int16_t readDO(uint32_t voltage_mv, uint8_t temperature_c,
@@ -96,7 +96,7 @@ void setup() {
 
   Serial.println("----------------------------------------------------");
   Serial.println(" Sistema Multisensor Bioreactor 3D");
-  Serial.println(" Salida formateada para Python Logger");
+  Serial.println(" Salida formateada para Python");
   Serial.println("----------------------------------------------------");
   delay(1000);
 }
@@ -136,7 +136,7 @@ void loop() {
   Serial.print(", O2|2: ");
   Serial.println(DO_value2);
 
-  // ——— Mostrar en LCD (opcional) ———
+  // ——— Mostrar en LCD ———
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("T:");
@@ -153,3 +153,4 @@ void loop() {
 
   delay(1000); // 1 Hz de actualización (ajustable)
 }
+
