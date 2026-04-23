@@ -195,5 +195,3 @@ print(f"Datos guardados en '{csv_path}'.")
 graph_path = os.path.join(save_folder, f"grafica_sensor_promedio_{fecha_actual}.png")
 fig.savefig(graph_path)
 print(f"Graficas guardadas en '{graph_path}'.")
-
-
