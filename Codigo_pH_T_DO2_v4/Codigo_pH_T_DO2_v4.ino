@@ -151,9 +151,9 @@ void loop() {
   Serial.print(tsensor, 2);
   Serial.print(", pH: ");
   Serial.print(ph_act, 2);
-  Serial.print(", O2|1: ");
+  Serial.print(", O2_1: ");
   Serial.print(DO_value1);
-  Serial.print(", O2|2: ");
+  Serial.print(", O2_2: ");
   Serial.println(DO_value2);
 
   // Mostrar en LCD
